@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Race Weekend · Shanghai 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080809;
+    --surface: #0f0f12;
+    --surface2: #16161b;
+    --border: #252530;
+    --text: #e6e6f0;
+    --muted: #5a5a70;
+    --muted2: #8888a0;
+    --f1-red: #e8002d;
+    --pcca-gold: #c8a84a;
+    --now: #22c55e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; min-height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 20px 0;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .weekend-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(26px, 5.5vw, 48px); letter-spacing: 0.05em; line-height: 1; }
+  .weekend-title .acc { color: var(--f1-red); }
+  .weekend-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 5px; }
+  .clocks { display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+  .clock-unit { text-align: right; }
+  .clock-time { font-family: 'DM Mono', monospace; font-weight: 500; letter-spacing: 0.06em; line-height: 1; }
+  .clock-time.primary { font-size: clamp(18px, 3.5vw, 26px); color: var(--text); }
+  .clock-time.secondary { font-size: clamp(13px, 2.5vw, 18px); color: var(--muted2); }
+  .clock-label { font-size: 9px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
+  .clock-div { width: 1px; height: 36px; background: var(--border); align-self: center; }
+  .tab-nav { display: flex; }
+  .tab-btn { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: none; border: none; border-bottom: 2px solid transparent; padding: 9px 14px; cursor: pointer; transition: all 0.15s; margin-bottom: -1px; }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--f1-red); }
+  .tab-btn:hover:not(.active) { color: var(--muted2); }
+
+  main { padding: 18px 20px; max-width: 860px; margin: 0 auto; }
+
+  .countdown { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+  .cd-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .cd-name { font-size: 13px; font-weight: 500; }
+  .cd-series { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); margin-top: 2px; }
+  .cd-timer { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, 6vw, 40px); color: var(--now); letter-spacing: 0.08em; line-height: 1; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .leg { display: flex; align-items: center; gap: 5px; font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted2); letter-spacing: 0.08em; text-transform: uppercase; }
+  .leg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  .day-block { margin-bottom: 26px; }
+  .day-head { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 0.1em; color: var(--muted2); margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .day-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .sess { display: grid; grid-template-columns: 3px 110px 1fr auto; gap: 0 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 11px 14px 11px 0; margin-bottom: 6px; position: relative; transition: border-color 0.15s; overflow: hidden; }
+  .sess:hover { background: var(--surface2); }
+  .sess.is-next { border-color: var(--now); }
+  .sess.past { opacity: 0.4; }
+  .stripe { align-self: stretch; border-radius: 3px 0 0 3px; min-height: 42px; }
+  .s-times {}
+  .s-local { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.15; }
+  .s-nzt { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted2); margin-top: 3px; }
+  .s-nzt em { color: var(--muted); font-style: normal; }
+  .s-meta {}
+  .s-name { font-size: 13px; font-weight: 500; }
+  .s-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 5px; border-radius: 3px; margin-top: 4px; }
+  .b-f1 { background: #e8002d22; color: var(--f1-red); }
+  .b-pcca { background: #c8a84a22; color: var(--pcca-gold); }
+  .b-driver { background: #1e3a5f55; color: #6baed6; }
+  .b-social { background: #4a1d6b55; color: #c084fc; }
+  .s-note { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; white-space: nowrap; }
+  .next-pill { position: absolute; top: 7px; right: 9px; font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--now); color: #000; padding: 2px 5px; border-radius: 2px; font-weight: 600; }
+
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0)} 50%{box-shadow:0 0 0 3px rgba(34,197,94,0.15)} }
+  .is-next { animation: pulse 2.5s infinite; }
+
+  /* Circuit tab */
+  .circ-name { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .circ-addr { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted2); letter-spacing: 0.08em; margin-bottom: 18px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 13px; }
+  .stat-v { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.04em; }
+  .stat-k { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+  .info-block { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px; margin-bottom: 12px; }
+  .info-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .info-row { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+  .info-row:last-child { border-bottom: none; }
+  .ir-label { color: var(--muted2); }
+  .ir-val { font-family: 'DM Mono', monospace; font-size: 11px; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  @media (max-width: 480px) {
+    header { padding: 14px 16px 0; }
+    main { padding: 14px 16px; }
+    .sess { grid-template-columns: 3px 90px 1fr; }
+    .s-note { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-row">
+    <div>
+      <div class="weekend-title">SHANGHAI <span class="acc">2026</span></div>
+      <div class="weekend-sub">Shanghai International Circuit · CST (GMT+8) · PCCA Rounds 1 &amp; 2</div>
+    </div>
+    <div class="clocks">
+      <div class="clock-unit">
+        <div class="clock-time primary" id="cst">--:--:--</div>
+        <div class="clock-label">Shanghai (CST)</div>
+      </div>
+      <div class="clock-div"></div>
+      <div class="clock-unit">
+        <div class="clock-time secondary" id="nzt">--:--:--</div>
+        <div class="clock-label">Auckland (NZT)</div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('schedule',this)">Schedule</button>
+    <button class="tab-btn" onclick="switchTab('circuit',this)">Circuit &amp; Info</button>
+  </div>
+</header>
+
+<main>
+  <div class="tab-content active" id="tab-schedule">
+    <div class="countdown" id="cdBlock">
+      <div>
+        <div class="cd-label">Next Session</div>
+        <div class="cd-name" id="cdName">—</div>
+        <div class="cd-series" id="cdSeries"></div>
+      </div>
+      <div class="cd-timer" id="cdTimer">--:--:--</div>
+    </div>
+
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#1e4a7a"></div>F1 Practice</div>
+      <div class="leg"><div class="leg-dot" style="background:#92400e"></div>Sprint Qualifying</div>
+      <div class="leg"><div class="leg-dot" style="background:#b45309"></div>Sprint Race</div>
+      <div class="leg"><div class="leg-dot" style="background:#5b21b6"></div>F1 Qualifying</div>
+      <div class="leg"><div class="leg-dot" style="background:#991b1b"></div>Grand Prix / Race</div>
+      <div class="leg"><div class="leg-dot" style="background:#1a5c3a"></div>PCCA Session</div>
+      <div class="leg"><div class="leg-dot" style="background:#166534"></div>PCCA Race</div>
+      <div class="leg"><div class="leg-dot" style="background:#1e3a5f"></div>Driver Commitment</div>
+      <div class="leg"><div class="leg-dot" style="background:#4a1d6b"></div>Social</div>
+    </div>
+
+    <div id="sessionList"></div>
+  </div>
+
+  <div class="tab-content" id="tab-circuit">
+    <div class="circ-name">Shanghai International Circuit</div>
+    <div class="circ-addr">2000 Yi Ning Road, Jiading District, Shanghai · Tel: +86 21 6956 8888</div>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-v">5.451 km</div><div class="stat-k">Track Length</div></div>
+      <div class="stat"><div class="stat-v">16</div><div class="stat-k">Corners</div></div>
+      <div class="stat"><div class="stat-v">56</div><div class="stat-k">F1 Race Laps</div></div>
+      <div class="stat"><div class="stat-v">1:32.238</div><div class="stat-k">F1 Lap Record</div></div>
+      <div class="stat"><div class="stat-v">13</div><div class="stat-k">PCCA Race Laps</div></div>
+      <div class="stat"><div class="stat-v">1.2 km</div><div class="stat-k">Main Straight</div></div>
+    </div>
+
+    <div class="info-block">
+      <div class="info-title">PCCA Key Contacts</div>
+      <div class="info-row"><span class="ir-label">Alex Imperatori</span><span class="ir-val">+86 134 7241 4228</span></div>
+      <div class="info-row"><span class="ir-label">Hannah Jin</span><span class="ir-val">+86 139 1601 6988</span></div>
+      <div class="info-row"><span class="ir-label">Kyrie Gao</span><span class="ir-val">+86 136 9101 1961</span></div>
+      <div class="info-row"><span class="ir-label">Ryan Ooi</span><span class="ir-val">+60 11 1011 8181</span></div>
+      <div class="info-row"><span class="ir-label">Jason Hong</span><span class="ir-val">+60 12 208 1787</span></div>
+      <div class="info-row"><span class="ir-label">Alice Yuan</span><span class="ir-val">+86 131 7266 3408</span></div>
+    </div>
+
+    <div class="info-block">
+      <div class="info-title">Team Hotel</div>
+      <div class="info-row"><span class="ir-label">ALILA Shanghai</span><span class="ir-val">+86 21 2218 0693</span></div>
+      <div class="info-row"><span class="ir-label">Address</span><span class="ir-val" style="font-size:10px">500 Weihai Road, Shanghai 200041</span></div>
+    </div>
+
+    <div class="info-block">
+      <div class="info-title">Friday Gala · A Night with Porsche Motorsport Asia Pacific</div>
+      <div class="info-row"><span class="ir-label">Venue</span><span class="ir-val" style="font-size:10px">BOTTEGA · 1/F, Bldg 1, No. 457 Shaanxi North Rd</span></div>
+      <div class="info-row"><span class="ir-label">Time</span><span class="ir-val">18:00 – 21:30 CST</span></div>
+      <div class="info-row"><span class="ir-label">Dress Code</span><span class="ir-val">Paddock Chic</span></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const SESSIONS = [
+  // ── THURSDAY 12 MARCH ──
+  { day:'Thursday 12 Mar', name:'Scrutineering & Registration', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-12T10:00:00+08:00', end:'2026-03-12T17:00:00+08:00', note:'Scrutineering Bay + Orga Office' },
+  { day:'Thursday 12 Mar', name:'Technical Service Provider Meeting', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-12T14:00:00+08:00', end:'2026-03-12T15:00:00+08:00', note:'PCCA Catering Tent' },
+  // ── FRIDAY 13 MARCH ──
+  { day:'Friday 13 Mar', name:'Shuttle → Circuit (1st dep.)', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-13T08:30:00+08:00', end:null, note:'Alila Hotel' },
+  { day:'Friday 13 Mar', name:'FP Pre-Grid Order Lucky Draw', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-13T10:40:00+08:00', end:'2026-03-13T10:50:00+08:00', note:'PCCA Catering Tent' },
+  { day:'Friday 13 Mar', name:'Drivers\' Briefing', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-13T10:50:00+08:00', end:'2026-03-13T11:30:00+08:00', note:'PCCA Catering Tent' },
+  { day:'Friday 13 Mar', name:'F1 Free Practice 1', series:'Formula 1', stripe:'#1e4a7a', badge:'f1', start:'2026-03-13T11:30:00+08:00', end:'2026-03-13T12:30:00+08:00', note:'60 min' },
+  { day:'Friday 13 Mar', name:'PCCA Free Practice', series:'Porsche CCA', stripe:'#1a5c3a', badge:'pcca', start:'2026-03-13T12:55:00+08:00', end:'2026-03-13T13:40:00+08:00', note:'45 min' },
+  { day:'Friday 13 Mar', name:'F1 Sprint Qualifying', series:'Formula 1', stripe:'#92400e', badge:'f1', start:'2026-03-13T15:30:00+08:00', end:'2026-03-13T16:14:00+08:00', note:'44 min' },
+  { day:'Friday 13 Mar', name:'A Night with Porsche Motorsport', series:'Social', stripe:'#4a1d6b', badge:'social', start:'2026-03-13T18:00:00+08:00', end:'2026-03-13T21:30:00+08:00', note:'BOTTEGA · Paddock Chic' },
+  // ── SATURDAY 14 MARCH ──
+  { day:'Saturday 14 Mar', name:'Shuttle → Circuit (1st dep.)', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-14T06:30:00+08:00', end:null, note:'Alila Hotel' },
+  { day:'Saturday 14 Mar', name:'PCCA Qualifying', series:'Porsche CCA', stripe:'#1a5c3a', badge:'pcca', start:'2026-03-14T09:10:00+08:00', end:'2026-03-14T09:40:00+08:00', note:'30 min' },
+  { day:'Saturday 14 Mar', name:'F1 Sprint Race', series:'Formula 1', stripe:'#b45309', badge:'f1', start:'2026-03-14T11:00:00+08:00', end:'2026-03-14T11:30:00+08:00', note:'19 laps / 60 min max' },
+  { day:'Saturday 14 Mar', name:'F1 Qualifying', series:'Formula 1', stripe:'#5b21b6', badge:'f1', start:'2026-03-14T15:00:00+08:00', end:'2026-03-14T16:00:00+08:00', note:'60 min' },
+  { day:'Saturday 14 Mar', name:'PCCA Grid Walk', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-14T16:45:00+08:00', end:'2026-03-14T16:50:00+08:00', note:'Pre-race grid' },
+  { day:'Saturday 14 Mar', name:'PCCA Round 1', series:'Porsche CCA', stripe:'#166534', badge:'pcca', start:'2026-03-14T16:55:00+08:00', end:'2026-03-14T17:30:00+08:00', note:'13 laps / 30 min' },
+  { day:'Saturday 14 Mar', name:'PCCA Podium Ceremony (Round 1)', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-14T17:40:00+08:00', end:'2026-03-14T18:00:00+08:00', note:'F1 Podium + Catering Tent' },
+  { day:'Saturday 14 Mar', name:'PCCA Press Conference (Round 1)', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-14T18:05:00+08:00', end:'2026-03-14T18:25:00+08:00', note:'PCCA Catering Tent' },
+  // ── SUNDAY 15 MARCH ──
+  { day:'Sunday 15 Mar', name:'Shuttle → Circuit (1st dep.)', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-15T07:30:00+08:00', end:null, note:'Alila Hotel' },
+  { day:'Sunday 15 Mar', name:'PCCA Grid Walk', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-15T11:45:00+08:00', end:'2026-03-15T11:50:00+08:00', note:'Pre-race grid' },
+  { day:'Sunday 15 Mar', name:'PCCA Round 2', series:'Porsche CCA', stripe:'#166534', badge:'pcca', start:'2026-03-15T11:55:00+08:00', end:'2026-03-15T12:30:00+08:00', note:'13 laps / 30 min' },
+  { day:'Sunday 15 Mar', name:'PCCA Podium Ceremony (Round 2)', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-15T12:40:00+08:00', end:'2026-03-15T14:00:00+08:00', note:'F1 Podium + Catering Tent' },
+  { day:'Sunday 15 Mar', name:'PCCA Press Conference (Round 2)', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-15T14:05:00+08:00', end:'2026-03-15T14:25:00+08:00', note:'PCCA Catering Tent' },
+  { day:'Sunday 15 Mar', name:'PCCA Drivers Autograph Session', series:'PCCA Driver', stripe:'#1e3a5f', badge:'driver', start:'2026-03-15T14:30:00+08:00', end:'2026-03-15T15:00:00+08:00', note:'Porsche Fan Zone' },
+  { day:'Sunday 15 Mar', name:'F1 Chinese Grand Prix', series:'Formula 1', stripe:'#991b1b', badge:'f1', start:'2026-03-15T15:00:00+08:00', end:'2026-03-15T17:00:00+08:00', note:'56 laps / 120 min max' },
+];
+
+function fmtTZ(iso, tz) {
+  return new Intl.DateTimeFormat('en',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(iso));
+}
+function fmtRange(start, end, tz) {
+  return fmtTZ(start, tz) + (end ? ' – ' + fmtTZ(end, tz) : '');
+}
+function fmtCountdown(ms) {
+  if (ms <= 0) return 'NOW';
+  const s=Math.floor(ms/1000)%60, m=Math.floor(ms/60000)%60, h=Math.floor(ms/3600000)%24, d=Math.floor(ms/86400000);
+  if (d > 0) return `${d}D ${String(h).padStart(2,'0')}H ${String(m).padStart(2,'0')}M`;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function badgeClass(b) { return {f1:'b-f1',pcca:'b-pcca',driver:'b-driver',social:'b-social'}[b]||'b-driver'; }
+function badgeLabel(s) { return {f1:'Formula 1','Formula 1':'Formula 1',pcca:'Porsche CCA','Porsche CCA':'Porsche CCA',driver:'Driver','PCCA Driver':'Driver',social:'Social','Social':'Social'}[s]||s; }
+
+function render() {
+  const now = Date.now();
+  let next = SESSIONS.find(s => new Date(s.start).getTime() > now);
+  if (next) {
+    document.getElementById('cdName').textContent = next.name;
+    document.getElementById('cdSeries').textContent = next.series;
+    document.getElementById('cdBlock').style.display = 'flex';
+  } else {
+    document.getElementById('cdBlock').style.display = 'none';
+  }
+
+  const byDay = {};
+  SESSIONS.forEach(s => { if (!byDay[s.day]) byDay[s.day]=[]; byDay[s.day].push(s); });
+
+  let html = '';
+  for (const [day, sessions] of Object.entries(byDay)) {
+    html += `<div class="day-block"><div class="day-head">${day}</div>`;
+    sessions.forEach(s => {
+      const st = new Date(s.start).getTime();
+      const isNext = next && s.start === next.start && s.name === next.name;
+      const isPast = s.end ? new Date(s.end).getTime() < now : st < now;
+      const cst = fmtRange(s.start, s.end, 'Asia/Shanghai');
+      const nzt = fmtRange(s.start, s.end, 'Pacific/Auckland');
+      html += `<div class="sess ${isNext?'is-next':''} ${isPast?'past':''}">
+        <div class="stripe" style="background:${s.stripe}"></div>
+        <div class="s-times">
+          <div class="s-local">${cst}</div>
+          <div class="s-nzt"><em>NZT</em> ${nzt}</div>
+        </div>
+        <div class="s-meta">
+          <div class="s-name">${s.name}</div>
+          <span class="s-badge ${badgeClass(s.badge)}">${s.series}</span>
+        </div>
+        <div class="s-note">${s.note||''}</div>
+        ${isNext ? '<div class="next-pill">NEXT</div>' : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  document.getElementById('sessionList').innerHTML = html;
+}
+
+function tick() {
+  const now = new Date();
+  const cst = new Intl.DateTimeFormat('en',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now);
+  const nzt = new Intl.DateTimeFormat('en',{timeZone:'Pacific/Auckland',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now);
+  document.getElementById('cst').textContent = cst;
+  document.getElementById('nzt').textContent = nzt;
+  const next = SESSIONS.find(s => new Date(s.start).getTime() > Date.now());
+  if (next) document.getElementById('cdTimer').textContent = fmtCountdown(new Date(next.start).getTime() - Date.now());
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+render();
+tick();
+setInterval(tick, 1000);
+setInterval(render, 60000);
+</script>
+</body>
+</html>
